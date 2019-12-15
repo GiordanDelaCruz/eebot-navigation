@@ -1,0 +1,60 @@
+;****************************************************************************
+;* lab 7 *
+;****************************************************************************
+; export symbols
+XDEF Entry, _Startup ; export ’Entry’ symbol
+ABSENTRY Entry ; for absolute assembly: mark this as application entry point
+; Include derivative-specific definitions
+INCLUDE ’derivative.inc’
+;---------------------------------------------------------------------------
+; ’Read Guider’ Demo Routine
+;
+; Reads the eebot guider sensors and displays the values
+; on the Liquid Crystal Display.
+; Peter Hiscocks
+; Version 2
+; Modified from version 1 to support selection of the individual LED
+; associated with a sensor, to reduce crosstalk from unselected sensor
+; LEDs.
+; The guider hardware was modified with the addition of a 74HC138 decoder that
+; drives the individual LEDs, so that only the LED associated with a given
+; sensor is ON when that sensor is being read.
+; This requires that the software be modified to enable the decoder with bit PA5
+; in PORTA.
+; The CdS cells are very slow in responding to changes in light, so a 20
+; millisecond delay is inserted between selecting a particular sensor and
+; reading its value.
+; Substantial improvement:
+; Draws less battery current for longer life
+; Creates less heat in the 5V logic regulator
+; Much greater contrast between dark and light readings
+; Overview:
+; --------
+; This program is intended as a test routine for the guider sensors of the
+; eebot robot and contains routines that will be useful in the robot
+; guidance project.
+; The guider consists of four absolute brightness sensors and one
+; differential brightness pair of sensors. They are arranged at the nose of
+; the robot in the following pattern (viewed from above):
+; A
+; B C D
+; E-F
+; The sensors are cadmium sulphide (CdS) photoresistive cells, for which the
+; resistance increases with decreasing light level. The absolute cells
+; A,B,C and D are driven from a constant current source, and the voltage
+; across the cell measured via the HCS12 A/D converter channel AN1. Thus
+; the sensor reading increases as the sensor becomes darker (over a black
+; line, for example).
+; The differential sensor E-F is a voltage divider with the two CdS cells E
+; and F separated 0.75 inches, which is the width of electrical tape. It is
+; intended to be used to track the edges of the electrical tape ’line’ once
+; the absolute cells have ’found’ a black line. Cell E is at the top of the
+; divider, so as the reading from this sensor increases, cell E is becoming
+; lighter, ie, cell E is straying onto the white background.
+; Simultaneously, cell F is becoming darker as it moves over the black
+; tape, and its resistance is increasing, aiding the same effect. The
+; differential action should ignore ambient light.
+; The program reads the sensor values, hopefully without disturbing any
+; other settings on the robot. The values are displayed in hexadecimal on
+; the LCD. On the LCD display, the pattern is as described in the routine
+; ’DISPLAY_SENSORS’.
